@@ -1,0 +1,21 @@
+name: Draft Release
+# This repository's own draft, through the shared workflow every Digitale
+# Maatje repository calls. Called locally, so it drafts with the workflow on
+# main, not a released one.
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: draft-release
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  draft:
+    uses: ./.github/workflows/release-drafter.yml
+    permissions:
+      contents: write
+      pull-requests: read
