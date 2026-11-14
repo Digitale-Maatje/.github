@@ -82,7 +82,7 @@ The labeler reads its rules from this repository, at the same `1` tag, so a repo
 2. Every merge to `main` updates this repository's own draft release.
 3. Publishing the draft tags `X.Y.Z` and moves `1`, `1.Y` and `latest` to its commit. A published pre-release moves nothing.
 
-Repositories pin `@1` and pick up every `1.*` release. A breaking change (a `feat!:` PR) becomes `2`. Its release also moves the `ref` default in [`workflows/labeler.yml`](.github/workflows/labeler.yml) to `"2"`, and each repository adopts it by moving its `@1` references.
+Repositories pin `@1` and pick up every `1.*` release. A breaking change (a `feat!:` PR) becomes `2`. Its release also moves the `ref` default in [`workflows/labeler.yml`](.github/workflows/labeler.yml) to `refs/tags/2`, and each repository adopts it by moving its `@1` references.
 
 The rules match Luscii's base ([Luscii/.github](https://github.com/Luscii/.github)), comments apart, so a fix found in one carries over to the other.
 

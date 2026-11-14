@@ -1,4 +1,4 @@
-name: Draft Release
+name: Draft Release (shared)
 # Shared: updates the repository's draft release with every merge, from its
 # .github/release-drafter.yml (which extends this repository's base). A
 # repository calls it on pushes to its default branch:
