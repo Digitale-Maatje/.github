@@ -1,0 +1,68 @@
+name: Label Pull Request
+# Shared: labels a PR with the rules in this repository's .github/labeler.yml,
+# which the release notes (release-drafter.yml) group by. A repository calls
+# it from a pull_request workflow of its own:
+#
+#   on:
+#     pull_request:
+#       types: [opened, reopened, synchronize, edited]
+#   permissions: {}
+#   jobs:
+#     labels:
+#       uses: Digitale-Maatje/.github/.github/workflows/labeler.yml@1
+#       permissions:
+#         contents: read
+#         pull-requests: write
+#
+# `edited` matters: the labels follow the PR title, so a retitle from fix: to
+# feat!: must label again even when nothing is pushed.
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: >-
+          Ref of Digitale-Maatje/.github to read labeler.yml from. Leave it:
+          the default is the major tag this workflow is released under, so a
+          caller pinned @1 reads the @1 rules. This repository's own PRs pass
+          their head commit to label with the rules they change.
+        type: string
+        required: false
+        # Move along with a major release (2 for @2): the rules and the
+        # workflow that reads them are one contract.
+        default: "1"
+
+# The job states what it needs; the caller must grant the same.
+permissions: {}
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read # checkout
+      pull-requests: write # the labeler sets and removes labels
+    steps:
+      # The rules, not the caller's code: the labeler reads the PR's title,
+      # branch and changed files through the API. A public repository, so the
+      # caller's job token can read it. No credentials are left in the
+      # checkout: the labeler gets the token through its env, and nothing
+      # else here needs git.
+      - name: Check out the labeler rules
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Digitale-Maatje/.github
+          ref: ${{ inputs.ref }}
+          path: dm-github
+          persist-credentials: false
+      # fail_on_error turns this check red only when labeler.yml cannot be read
+      # or parsed. A failed label update does not: the labeler logs it and
+      # exits 0. A conventional title's version does not depend on the label:
+      # release-drafter.yml reads it from the title too.
+      - name: Label the PR
+        uses: srvaroa/labeler@bf262763a8a8e191f5847873aecc0f29df84f957 # v1.14.0
+        with:
+          config_path: dm-github/.github/labeler.yml
+          use_local_config: true
+          fail_on_error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

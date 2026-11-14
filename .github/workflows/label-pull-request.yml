@@ -1,0 +1,27 @@
+name: Pull Request labels
+# This repository's own PRs, through the shared workflow every Digitale Maatje
+# repository calls. Called locally, and with the PR's head commit as the rules
+# ref, so a PR that changes labeler.yml is labelled by the rules it proposes.
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+
+# A newer event on the same PR supersedes a labelling run.
+concurrency:
+  group: pr-labels-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  labels:
+    uses: ./.github/workflows/labeler.yml
+    permissions:
+      contents: read
+      pull-requests: write
+    with:
+      ref: ${{ github.event.pull_request.head.sha }}

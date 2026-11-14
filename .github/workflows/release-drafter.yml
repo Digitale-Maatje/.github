@@ -1,0 +1,51 @@
+name: Draft Release
+# Shared: updates the repository's draft release with every merge, from its
+# .github/release-drafter.yml (which extends this repository's base). A
+# repository calls it on pushes to its default branch:
+#
+#   on:
+#     push:
+#       branches: [main]
+#   concurrency:
+#     group: draft-release
+#     cancel-in-progress: true
+#   permissions: {}
+#   jobs:
+#     draft:
+#       uses: Digitale-Maatje/.github/.github/workflows/release-drafter.yml@1
+#       permissions:
+#         contents: write
+#         pull-requests: read
+#
+# It only drafts. Publishing stays a person's step: in several repositories,
+# publishing a release is what applies production.
+on:
+  workflow_call:
+    outputs:
+      tag_name:
+        description: Tag the draft will create when published (X.Y.Z).
+        value: ${{ jobs.draft.outputs.tag_name }}
+      html_url:
+        description: The draft release's page.
+        value: ${{ jobs.draft.outputs.html_url }}
+
+# The job states what it needs; the caller must grant the same.
+permissions: {}
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write # create and update the draft release
+      pull-requests: read # the merged PRs and their labels
+    outputs:
+      tag_name: ${{ steps.draft.outputs.tag_name }}
+      html_url: ${{ steps.draft.outputs.html_url }}
+    steps:
+      - name: Draft Release
+        id: draft
+        uses: release-drafter/release-drafter@978bb0b30c5ee8cdd332ced253758157150d43f0 # v7.10.0
+        with:
+          publish: false
+          token: ${{ github.token }}
