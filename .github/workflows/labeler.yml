@@ -1,4 +1,4 @@
-name: Label Pull Request
+name: Label Pull Request (shared)
 # Shared: labels a PR with the rules in this repository's .github/labeler.yml,
 # which the release notes (release-drafter.yml) group by. A repository calls
 # it from a pull_request workflow of its own:
@@ -27,9 +27,11 @@ on:
           their head commit to label with the rules they change.
         type: string
         required: false
-        # Move along with a major release (2 for @2): the rules and the
-        # workflow that reads them are one contract.
-        default: "1"
+        # Move along with a major release (refs/tags/2 for @2): the rules and
+        # the workflow that reads them are one contract. Fully qualified:
+        # actions/checkout resolves a bare "1" to a branch named 1 before the
+        # tag, so a pushed branch could stand in for the released rules.
+        default: refs/tags/1
 
 # The job states what it needs; the caller must grant the same.
 permissions: {}
